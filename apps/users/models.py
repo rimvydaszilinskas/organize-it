@@ -8,9 +8,12 @@ from apps.utils.models import BaseModel
 
 
 class User(BaseModel, AbstractUser):
+    email = models.EmailField(_('email address'), unique=True)
+
     @property
     def token(self) -> str:
-        return Token.objects.get_or_create(user=self).key
+        token, _ = Token.objects.get_or_create(user=self)
+        return token.key
 
 
 class UserGroup(BaseModel, models.Model):
@@ -33,3 +36,8 @@ class UserGroup(BaseModel, models.Model):
 
     def __str__(self) -> str:
         return f'{self.name} - user group'
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.creator and not self.users.filter(pk=self.creator.pk).exists():
+            self.users.add(self.creator)

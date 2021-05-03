@@ -1,7 +1,21 @@
+from __future__ import annotations
+
+import typing as t
+
 from django.db import models
+from django.db.models import Q
 
 from apps.users.models import User
 from apps.utils.models import BaseModel
+import apps.utils.typing as td
+
+
+class CalendarEventManager(models.Manager):
+    def get_user_events(self, user: td.User) -> td.QuerySet:
+        return self.filter(Q(organizer=user) | Q(attendees__user=user))
+
+    def get_email_events(self, email: str) -> td.QuerySet:
+        return self.filter(attendees__email=email)
 
 
 class CalendarEvent(BaseModel):
@@ -24,6 +38,8 @@ class CalendarEvent(BaseModel):
     )
     time_start = models.DateTimeField()
     time_end = models.DateTimeField()
+
+    objects = CalendarEventManager()
 
     def __str__(self) -> str:
         return f'{self.name} - event'
@@ -62,10 +78,10 @@ class CalendarEventAttendee(BaseModel):
     def __str__(self) -> str:
         return f'{self.event} attendee {self.email}'
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> t.NoReturn:
         if self.user is None:
             try:
                 self.user = User.objects.get(email=self.email)
             except User.DoesNotExist:
                 pass
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)

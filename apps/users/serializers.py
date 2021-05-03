@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from rest_framework import serializers
 
 import apps.utils.typing as td
@@ -6,7 +8,7 @@ from .models import User, UserGroup
 
 
 class UserSerializer(serializers.ModelSerializer):
-    uuid = serializers.UUIDField(format='hex')
+    uuid = serializers.UUIDField(format='hex', read_only=True)
 
     class Meta:
         model = User
@@ -34,21 +36,29 @@ class UserGroupSerializer(serializers.ModelSerializer):
             'users',
         )
 
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return self.Meta.model.objects.create(
+            creator=user,
+            **validated_data
+        )
 
-class UserAuthenticationSerializer(serializers.ModelSerializer):
-    uuid = serializers.UUIDField(format='hex', read_only=True)
+
+class UserAuthenticationSerializer(UserSerializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True, write_only=True)
-    token = serializers.CharField(read_only=True)
+    token = serializers.SerializerMethodField()
+    username = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = (
-            'uuid',
-            'email',
-            'password',
+        fields = UserSerializer.Meta.fields + (
             'token',
+            'password',
         )
+
+    def get_token(self, obj: td.User):
+        return obj.token
 
     def validate(self, attrs):
         email = attrs['email']
@@ -63,6 +73,8 @@ class UserAuthenticationSerializer(serializers.ModelSerializer):
         if not self.instance.check_password(password):
             raise serializers.ValidationError(msg)
 
+        return attrs
+
     def create(self, _):
         raise NotImplementedError()
 
@@ -71,7 +83,7 @@ class UserAuthenticationSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(UserSerializer):
-    password = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
     class Meta:
         model = UserSerializer.Meta.model
