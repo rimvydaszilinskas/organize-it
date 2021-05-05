@@ -1,7 +1,4 @@
-import re
-from django.http import response
 from django.urls import reverse
-from factory import django
 
 from apps.utils.tests import BaseAPITestCase
 

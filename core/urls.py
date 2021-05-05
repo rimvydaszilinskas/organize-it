@@ -19,6 +19,7 @@ from django.urls import path
 
 urlpatterns = [
     url(r'^users/', include(('apps.users.urls', 'users'), namespace='users')),
-    url(r'^calendars/', include(('apps.calendars.urls', 'calendar'), namespace='calendar')),
+    url(r'^calendars/', include(('apps.calendars.urls',
+        'calendars'), namespace='calendars')),
     url(r'^admin/', admin.site.urls),
 ]

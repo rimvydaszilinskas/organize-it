@@ -82,6 +82,16 @@ class CalendarEventSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'neither emails nor group_uuid exists in request')
 
+        if attrs['time_start'] >= attrs['time_end']:
+            raise serializers.ValidationError({
+                'time_start': 'time_start must be smaller than time_end',
+                'time_end': 'time_start must be smaller than time_end'
+            })
+
+        if (attrs['time_end'] - attrs['time_start']).seconds < 900:
+            raise serializers.ValidationError(
+                {'duration': 'Cannot create event shorter than 15 minutes'})
+
         if check:
             validator = EventTimeValidator(
                 attrs['time_start'],
