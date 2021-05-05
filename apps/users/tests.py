@@ -50,7 +50,7 @@ class TestUserFilterView(BaseAPITestCase):
         self.authenticate_client()
 
         response = self.client.get(
-            f'{self.view_name}?group={self.group2.uuid.hex}&lookup={self.user.email}')
+            f'{self.view_name}?group={self.group2.uuid.hex}&lookup={user.email}')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
