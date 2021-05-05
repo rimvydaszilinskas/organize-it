@@ -49,7 +49,7 @@ class UserFilterView(generics.ListAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        return User.objects.filter(self._get_query())
+        return User.objects.filter(self._get_query()).exclude(pk=self.request.user.pk)
 
     def _get_query(self):
         lookup = self.request.query_params.get('lookup')

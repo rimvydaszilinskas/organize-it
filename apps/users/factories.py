@@ -18,4 +18,4 @@ class UserGroupFactory(DjangoModelFactory):
     class Meta:
         model = UserGroup
 
-    name = factory.Faker('title')
+    name = factory.Faker('sentence', nb_words=4)

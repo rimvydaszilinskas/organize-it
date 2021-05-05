@@ -2,10 +2,10 @@ import typing as t
 
 from rest_framework import serializers
 
-from apps.users.models import User
+from apps.users.models import User, UserGroup
 from apps.users.serializers import UserSerializer, UserGroupSerializer
 
-from .finders import EventTimeValidator
+from .validators import EventTimeValidator
 from .models import CalendarEvent, CalendarEventAttendee
 
 
@@ -30,8 +30,9 @@ class CalendarEventSerializer(serializers.ModelSerializer):
     attendees = CalendarEventAttendeeSerializer(many=True, read_only=True)
     organizer = UserSerializer(read_only=True)
     group = UserGroupSerializer(read_only=True)
+    group_uuid = serializers.UUIDField(format='hex', read_only=True)
     emails = serializers.ListField(
-        child=serializers.EmailField(), write_only=True
+        child=serializers.EmailField(), write_only=True, required=False
     )
     check = serializers.BooleanField(
         write_only=True, required=False, default=False)
@@ -46,6 +47,7 @@ class CalendarEventSerializer(serializers.ModelSerializer):
             'time_end',
             'organizer',
             'group',
+            'group_uuid',
             'attendees',
             'emails',
             'check',
@@ -63,13 +65,28 @@ class CalendarEventSerializer(serializers.ModelSerializer):
 
         return users
 
+    def validate_group_uuid(self, uuid):
+        try:
+            return UserGroup.objects.get(uuid=uuid)
+        except UserGroup.DoesNotExist:
+            raise serializers.ValidationError('User Group does not exist')
+
     def validate(self, attrs):
         check = attrs.pop('check', False)
+
+        if 'emails' in attrs:
+            emails = attrs['emails']
+        elif 'group_uuid' in attrs:
+            emails = attrs['group_uuid'].users.all()
+        else:
+            raise serializers.ValidationError(
+                'neither emails nor group_uuid exists in request')
+
         if check:
             validator = EventTimeValidator(
                 attrs['time_start'],
                 attrs['time_end'],
-                attrs['emails']
+                emails,
             )
             if not validator.validate():
                 raise serializers.ValidationError(validator.errors)
@@ -78,6 +95,11 @@ class CalendarEventSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         emails = validated_data.pop('emails')
+
+        if 'group_uuid' in validated_data:
+            validated_data.update({
+                'group': validated_data.pop('group_uuid'),
+            })
 
         event = self.Meta.model.objects.create(
             organizer=self.context['request'].user, **validated_data)
