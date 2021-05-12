@@ -16,8 +16,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CalendarEvent',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(db_index=True, default=uuid.uuid4, editable=False, unique=True)),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('uuid', models.UUIDField(db_index=True,
+                 default=uuid.uuid4, editable=False, unique=True)),
                 ('name', models.CharField(max_length=100)),
                 ('description', models.TextField(blank=True, null=True)),
                 ('time_start', models.DateTimeField()),
@@ -30,12 +32,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CalendarEventAttendee',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(db_index=True, default=uuid.uuid4, editable=False, unique=True)),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('uuid', models.UUIDField(db_index=True,
+                 default=uuid.uuid4, editable=False, unique=True)),
                 ('email', models.EmailField(max_length=254)),
-                ('response', models.CharField(choices=[('y', 'Yes'), ('n', 'No'), ('m', 'Maybe'), ('u', 'undefined')], default='u', max_length=1)),
+                ('response', models.CharField(choices=[
+                 ('y', 'Yes'), ('n', 'No'), ('m', 'Maybe'), ('u', 'undefined')], default='u', max_length=1)),
                 ('note', models.TextField(blank=True, null=True)),
-                ('event', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendees', to='calendars.CalendarEvent')),
+                ('event', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 related_name='attendees', to='calendars.CalendarEvent')),
             ],
             options={
                 'abstract': False,

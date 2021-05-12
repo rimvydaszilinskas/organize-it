@@ -27,7 +27,7 @@ class EventTimeValidator(object):
                 events = CalendarEvent.objects.get_user_events(user).filter(self.__time_query)  # noqa
             if events.exists():
                 self.__errors.update(
-                    {user.email: 'User has an event at the given time slot'})
+                    {user.email if isinstance(user, User) else user: 'User has an event at the given time slot'})
 
         return not bool(self.__errors)
 
@@ -37,7 +37,7 @@ class EventTimeValidator(object):
 
     def get_errors(self):
         if self.__errors is None:
-            raise EventTimeValidationError('.solve() needs to be run first')
+            raise EventTimeValidationError('.validate() needs to be run first')
         return self.__errors
 
     @property

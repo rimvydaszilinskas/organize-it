@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from django.urls import path
 
+
 urlpatterns = [
     url(r'^users/', include(('apps.users.urls', 'users'), namespace='users')),
     url(r'^calendars/', include(('apps.calendars.urls',

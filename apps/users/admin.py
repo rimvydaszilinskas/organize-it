@@ -11,6 +11,10 @@ class UserAdmin(DjangoUserAdmin):
 
 @admin.register(UserGroup)
 class UserGroupAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'uuid',
+    )
+
     autocomplete_fields = (
         'creator',
         'users',

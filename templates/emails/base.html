@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<body class="body">
+    <div>
+        <p>
+            {% if attendee.user %}
+                Dear {{attendee.user.first_name}} {{attendee.user.last_name}},
+            {% else %}
+                Hello,
+            {% endif %}
+        </p>
+        <p>
+            You were invited to {{event.name}} on {{event.pretty_start}} by {{event.organizer.first_name}} {{event.organizer.last_name}}.
+        </p>
+        <p>
+            The event is estimated to finish on {{event.pretty_end}} (approx. {{event.length}} minutes).
+        </p>
+        {% if event.description %}
+            <p>The organizer has added the following message:</p>
+            <p>{{ event.description | escapejs }}</p>
+        {% endif %}
+
+        <p>
+            Please find the invitation in attachments and add it to your calendar.
+        </p>
+    </div>
+</body>
+</html>

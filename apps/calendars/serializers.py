@@ -30,7 +30,7 @@ class CalendarEventSerializer(serializers.ModelSerializer):
     attendees = CalendarEventAttendeeSerializer(many=True, read_only=True)
     organizer = UserSerializer(read_only=True)
     group = UserGroupSerializer(read_only=True)
-    group_uuid = serializers.UUIDField(format='hex', read_only=True)
+    group_uuid = serializers.UUIDField(format='hex', required=False)
     emails = serializers.ListField(
         child=serializers.EmailField(), write_only=True, required=False
     )
@@ -104,12 +104,14 @@ class CalendarEventSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        emails = validated_data.pop('emails')
+        emails = validated_data.pop('emails', [])
 
         if 'group_uuid' in validated_data:
+            group = validated_data.pop('group_uuid')
             validated_data.update({
-                'group': validated_data.pop('group_uuid'),
+                'group': group,
             })
+            emails = group.users.values_list("email", flat=True)
 
         event = self.Meta.model.objects.create(
             organizer=self.context['request'].user, **validated_data)
