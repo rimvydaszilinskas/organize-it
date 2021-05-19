@@ -3,8 +3,8 @@ from rest_framework import generics
 from rest_framework.settings import api_settings
 
 from .models import CalendarEvent, CalendarEventAttendee
-from .permissions import EventAttendeePermission, EventPermission
-from .serializers import CalendarEventAttendeeSerializer, CalendarEventSerializer
+from .permissions import EventAttendeePermission, EventPermission, UserCalendarPermission
+from .serializers import CalendarEventAttendeeSerializer, CalendarEventSerializer, UserCalendarSerializer
 
 
 class CalendarEventsView(generics.ListCreateAPIView):
@@ -35,3 +35,17 @@ class AttendanceView(generics.RetrieveUpdateDestroyAPIView):
             CalendarEventAttendee, uuid=self.kwargs['uuid'])
         self.check_object_permissions(self.request, attendee)
         return attendee
+
+
+class UserCalendarsView(generics.ListCreateAPIView):
+    serializer_class = UserCalendarSerializer
+
+    def get_queryset(self):
+        return self.request.user.calendars.all()
+
+
+class UserCalendarView(generics.RetrieveDestroyAPIView):
+    serializer_class = UserCalendarSerializer
+
+    def get_object(self):
+        return get_object_or_404(self.request.user.calendars, uuid=self.kwargs['uuid'])

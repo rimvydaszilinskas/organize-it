@@ -188,3 +188,16 @@ class CalendarEventAttendee(BaseModel):
             except User.DoesNotExist:
                 pass
         super().save(*args, **kwargs)
+
+
+class UserCalendar(BaseModel):
+    name = models.CharField(null=True, blank=True, max_length=25)
+
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='calendars',
+    )
+
+    def __str__(self) -> str:
+        return f"{self.user} calendar{(' ' + self.name) if self.name else ''}"

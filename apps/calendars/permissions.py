@@ -28,3 +28,8 @@ class EventPermission(BasePermission):
             conditions.append(obj.attendees.filter(user=request.user).exists())
 
         return any(conditions)
+
+
+class UserCalendarPermission(BasePermission):
+    def has_object_permission(self, request, _, obj: td.UserCalendar):
+        return obj.user == request.user

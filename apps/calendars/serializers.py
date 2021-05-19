@@ -6,7 +6,7 @@ from apps.users.models import User, UserGroup
 from apps.users.serializers import UserSerializer, UserGroupSerializer
 
 from .validators import EventTimeValidator
-from .models import CalendarEvent, CalendarEventAttendee
+from .models import CalendarEvent, CalendarEventAttendee, UserCalendar
 
 
 class CalendarEventAttendeeSerializer(serializers.ModelSerializer):
@@ -125,3 +125,14 @@ class CalendarEventSerializer(serializers.ModelSerializer):
             )
 
         return event
+
+
+class UserCalendarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCalendar
+        fields = (
+            'name',
+        )
+
+    def create(self, validated_data):
+        return UserCalendar.objects.create(user=self.context['request'].user, **validated_data)

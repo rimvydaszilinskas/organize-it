@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CalendarEvent, CalendarEventAttendee
+from .models import CalendarEvent, CalendarEventAttendee, UserCalendar
 
 
 class CalendarEventAttendeeInline(admin.TabularInline):
@@ -9,6 +9,15 @@ class CalendarEventAttendeeInline(admin.TabularInline):
 
     autocomplete_fields = (
         'user',
+    )
+
+
+class UserCalendarInline(admin.TabularInline):
+    model = UserCalendar
+    extra = 0
+
+    readonly_fields = (
+        "uuid",
     )
 
 
