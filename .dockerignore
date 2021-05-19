@@ -9,3 +9,6 @@ db.sqlite3
 .env
 *.pyc
 __pycache__
+
+postgres_data
+static_root
