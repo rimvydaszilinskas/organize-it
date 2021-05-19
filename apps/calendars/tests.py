@@ -38,7 +38,7 @@ class TimeValidatorTest(BaseTestCase):
 
 
 class CalendarEventsView(BaseAPITestCase):
-    view_name = reverse('calendars:user-events')
+    view_name = reverse('calendars:user-events-view')
 
     def setUp(self):
         super().setUp()
