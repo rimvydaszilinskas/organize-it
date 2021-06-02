@@ -65,3 +65,10 @@ class UserFilterView(generics.ListAPIView):
             except (UserGroup.DoesNotExist, ValidationError):
                 raise Http404()
         return query
+
+
+class SelfUserView(generics.RetrieveAPIView):
+    serializer_class = UserAuthenticationSerializer
+
+    def get_object(self):
+        return self.request.user

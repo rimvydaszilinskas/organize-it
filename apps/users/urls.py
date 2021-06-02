@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.UserFilterView.as_view(), name='users'),
+    url(r'^self/$', views.views.SelfUserView.as_view(), name='self'),
     url(r'^register/$', views.UserRegistrationView.as_view(), name='registration'),
     url(r'^login/$', views.UserAuthenticationView.as_view(), name='login'),
     url(r'^groups/$', views.UserGroupsView.as_view(), name='user-groups'),
