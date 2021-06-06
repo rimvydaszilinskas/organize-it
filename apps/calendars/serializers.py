@@ -1,5 +1,6 @@
 import typing as t
 
+from django.conf import settings
 from rest_framework import serializers
 
 from apps.users.models import User, UserGroup
@@ -125,7 +126,8 @@ class CalendarEventSerializer(serializers.ModelSerializer):
                 event=event
             )
 
-        event.send()
+        if not settings.TESTING:
+            event.send()
 
         return event
 

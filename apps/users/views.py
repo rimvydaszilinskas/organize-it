@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics
+from rest_framework import generics, serializers
 from rest_framework.settings import api_settings
 
 from .models import User, UserGroup
@@ -13,6 +13,7 @@ from .serializers import (
     UserGroupSerializer,
     UserRegistrationSerializer,
     UserSerializer,
+    UserInvitationSerializer,
 )
 
 
@@ -72,3 +73,7 @@ class SelfUserView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserInvitationView(generics.CreateAPIView):
+    serializer_class = UserInvitationSerializer

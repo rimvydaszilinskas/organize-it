@@ -1,8 +1,9 @@
+from django.http import response
 from django.urls import reverse
 
 from apps.utils.tests import BaseAPITestCase
 
-from .models import User, UserGroup
+from .models import User, UserGroup, UserInvitation
 
 
 class TestUserFilterView(BaseAPITestCase):
@@ -193,3 +194,35 @@ class TestUserRegistrationView(BaseAPITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('email', response.data)
         self.assertIn('username', response.data)
+
+
+class TestUserInvitation(BaseAPITestCase):
+    view_name = 'users:invitation'
+
+    def setUp(self):
+        super().setUp()
+        self.authenticate_client()
+
+    def test_invite(self):
+        response = self.client.post(reverse(self.view_name), data={
+            'email': 'notexistingemail@email.com',
+        })
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(UserInvitation.objects.all().count(), 1)
+
+    def test_existing_invitation(self):
+        email = 'email@email.com'
+        UserInvitation.objects.create(email=email)
+        response = self.client.post(reverse(self.view_name), data={
+            'email': email
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_existing_user(self):
+        email = self.user.email
+        response = self.client.post(reverse(self.view_name), data={
+            'email': email
+        })
+        self.assertEqual(response.status_code, 400)

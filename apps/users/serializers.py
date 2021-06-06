@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from django.conf import settings
 from rest_framework import serializers
 
+from apps.calendars.emails import send_user_invitations
 import apps.utils.typing as td
 
-from .models import User, UserGroup
+from .models import User, UserGroup, UserInvitation
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -97,3 +99,25 @@ class UserRegistrationSerializer(UserSerializer):
         user.set_password(password)
         user.save(update_fields=['password'])
         return user
+
+
+class UserInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInvitation
+        fields = (
+            'email',
+        )
+
+    @staticmethod
+    def validate_email(email):
+        if User.objects.filter(email=email).exists() or UserInvitation.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                f'Invitation or user for email {email} already exists')
+        return email
+
+    def create(self, validated_data):
+        instance: td.UserInvitation = super().create(validated_data)
+
+        if not settings.TESTING:
+            send_user_invitations.delay(instance.email)
+        return instance

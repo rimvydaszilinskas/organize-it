@@ -7,4 +7,4 @@ if t.TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from apps.calendars.models import CalendarEvent, CalendarEventAttendee, UserCalendar
     # noinspection PyUnresolvedReferences
-    from apps.users.models import User, UserGroup
+    from apps.users.models import User, UserGroup, UserInvitation

@@ -41,3 +41,7 @@ class UserGroup(BaseModel, models.Model):
         super().save(*args, **kwargs)
         if self.creator and not self.users.filter(pk=self.creator.pk).exists():
             self.users.add(self.creator)
+
+
+class UserInvitation(models.Model):
+    email = models.EmailField()
