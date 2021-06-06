@@ -16,6 +16,19 @@ services:
             - "8080:8080"
         volumes:
             - ./static_root:/code/static-root
+    
+    rq:
+        container_name: rq
+        image: organize_it
+        build:
+            context: .
+        environment:
+            DB_HOST: db
+            REDIS_HOST: redis
+        command: ./manage.py rqworker
+        volumes:
+            - ./static_root:/code/static-root
+    
     db:
         container_name: db
         image: postgres

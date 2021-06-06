@@ -147,9 +147,9 @@ USE_TZ = True
 # Django RQ setup
 RQ_QUEUES = {
     'default': {
-        'HOST': os.environ.get('REDIS_HOST'),
-        'PORT': os.environ.get('REDIS_PORT'),
-        'DB': os.environ.get('RQ_DB'),
+        'HOST': os.environ.get('REDIS_HOST', 'localhost'),
+        'PORT': os.environ.get('REDIS_PORT', 6379),
+        'DB': os.environ.get('RQ_DB', 0),
     }
 }
 
