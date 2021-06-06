@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from apps.users.models import User, UserGroup
 from apps.users.serializers import UserSerializer, UserGroupSerializer
+import apps.utils.typing as td
 
 from .validators import EventTimeValidator
 from .models import CalendarEvent, CalendarEventAttendee, UserCalendar
@@ -113,7 +114,7 @@ class CalendarEventSerializer(serializers.ModelSerializer):
             })
             emails = group.users.values_list("email", flat=True)
 
-        event = self.Meta.model.objects.create(
+        event: td.CalendarEvent = self.Meta.model.objects.create(
             organizer=self.context['request'].user, **validated_data)
 
         for email in emails:
@@ -123,6 +124,8 @@ class CalendarEventSerializer(serializers.ModelSerializer):
                 email=email,
                 event=event
             )
+
+        event.send()
 
         return event
 

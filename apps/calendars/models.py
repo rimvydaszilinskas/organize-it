@@ -145,7 +145,11 @@ class CalendarEvent(BaseModel):
         return mime
 
     def send(self):
-        send_invitations(self)
+        try:
+            send_invitations.delay(self)
+        except Exception as e:
+            print(f'error sending invitations: {e}')
+            send_invitations(self)
 
 
 class CalendarEventAttendee(BaseModel):
