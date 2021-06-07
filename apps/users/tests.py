@@ -62,6 +62,9 @@ class TestUserGroupsView(BaseAPITestCase):
         data = {
             'name': 'super name',
             'description': 'super description',
+            'emails': [
+                user.email for user in User.objects.all()[:10]
+            ]
         }
         response = self.client.post(self.view_name, data=data, format='json')
 
@@ -70,6 +73,7 @@ class TestUserGroupsView(BaseAPITestCase):
         self.assertEqual(group.name, data['name'])
         self.assertEqual(group.description, data['description'])
         self.assertEqual(group.creator, self.user)
+        self.assertEqual(group.users.count(), 10)
 
     def test_get_groups(self):
         self.authenticate_client()

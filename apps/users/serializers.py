@@ -1,4 +1,5 @@
 from __future__ import annotations
+import typing as t
 
 from django.conf import settings
 from rest_framework import serializers
@@ -27,6 +28,9 @@ class UserGroupSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(format='hex', read_only=True)
     creator = UserSerializer(read_only=True)
     users = UserSerializer(many=True, read_only=True)
+    emails = serializers.ListField(
+        child=serializers.EmailField(), write_only=True
+    )
 
     class Meta:
         model = UserGroup
@@ -36,14 +40,34 @@ class UserGroupSerializer(serializers.ModelSerializer):
             'description',
             'creator',
             'users',
+            'emails',
         )
+
+    @staticmethod
+    def validate_emails(emails: t.List[str]) -> t.Iterable[td.User]:
+        users = []
+
+        for email in emails:
+            try:
+                users.append(User.objects.get(email=email))
+            except User.DoesNotExist:
+                raise serializers.ValidationError(
+                    f'User with email {email} is not registered in the system')
+
+        return users
 
     def create(self, validated_data):
         user = self.context['request'].user
-        return self.Meta.model.objects.create(
+        users = validated_data.pop('emails')
+
+        group: td.UserGroup = self.Meta.model.objects.create(
             creator=user,
             **validated_data
         )
+
+        for member in users:
+            group.users.add(member)
+        return group
 
 
 class UserAuthenticationSerializer(UserSerializer):
