@@ -260,3 +260,39 @@ class TestUserInvitation(BaseAPITestCase):
             'email': email
         })
         self.assertEqual(response.status_code, 400)
+
+
+class TestPasswordChangeView(BaseAPITestCase):
+    view_name = reverse('users:password')
+
+    def setUp(self):
+        super().setUp()
+        self.user.set_password('password')
+        self.user.save()
+        self.authenticate_client()
+
+    def test_change_password(self):
+        response = self.client.patch(self.view_name, data={
+            'current_password': 'password',
+            'new_password': 'newpassword'
+        })
+
+        self.assertEqual(response.status_code, 204)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('newpassword'))
+
+    def test_incorrect_password(self):
+        response = self.client.patch(self.view_name, data={
+            'current_password': 'incorrect',
+            'new_password': 'newpassword'
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_matching_password(self):
+        response = self.client.patch(self.view_name, data={
+            'current_password': 'password',
+            'new_password': 'password'
+        })
+
+        self.assertEqual(response.status_code, 400)

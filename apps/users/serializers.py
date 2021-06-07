@@ -145,3 +145,35 @@ class UserInvitationSerializer(serializers.ModelSerializer):
         if not settings.TESTING:
             send_user_invitations.delay(instance.email)
         return instance
+
+
+class PasswordChangeSerializer(serializers.ModelSerializer):
+    current_password = serializers.CharField(max_length=100, write_only=True)
+    new_password = serializers.CharField(
+        max_length=100, min_length=5, write_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'current_password',
+            'new_password',
+        )
+
+    def validate_current_password(self, password):
+        user: td.User = self.instance
+
+        if not user.check_password(password):
+            raise serializers.ValidationError('is not valid')
+
+        return password
+
+    def validate(self, attrs):
+        if attrs['current_password'] == attrs['new_password']:
+            raise serializers.ValidationError('Passwords cannot match')
+        return attrs
+
+    def update(self, instance: td.User, validated_data):
+        password = validated_data['new_password']
+        instance.set_password(password)
+        instance.save(update_fields=['password'])
+        return instance

@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^groups/(?P<uuid>[0-9a-f]{32})/$',
         views.UserGroupView.as_view(), name='user-group'),
     url(r'^invitations/$', views.UserInvitationView.as_view(), name='invitation'),
+    url(r'^password/$', views.UserPasswordChangeView.as_view(), name='password'),
 ]
