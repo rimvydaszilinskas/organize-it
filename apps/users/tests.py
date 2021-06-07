@@ -196,6 +196,36 @@ class TestUserRegistrationView(BaseAPITestCase):
         self.assertIn('username', response.data)
 
 
+class TestUserSelfView(BaseAPITestCase):
+    view_name = 'users:self'
+
+    def setUp(self):
+        super().setUp()
+        self.authenticate_client()
+
+    def test_get(self):
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('token' in response.json())
+
+    def test_bad_patch(self):
+        response = self.client.patch(reverse(self.view_name), data={
+            'email': User.objects.exclude(email=self.user.email).first().email
+        })
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_update(self):
+        response = self.client.patch(reverse(self.view_name), data={
+            'first_name': 'newcoolname'
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'newcoolname')
+
+
 class TestUserInvitation(BaseAPITestCase):
     view_name = 'users:invitation'
 

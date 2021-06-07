@@ -68,8 +68,14 @@ class UserFilterView(generics.ListAPIView):
         return query
 
 
-class SelfUserView(generics.RetrieveAPIView):
+class SelfUserView(generics.RetrieveUpdateAPIView):
     serializer_class = UserAuthenticationSerializer
+    update_serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return self.serializer_class
+        return self.update_serializer_class
 
     def get_object(self):
         return self.request.user
