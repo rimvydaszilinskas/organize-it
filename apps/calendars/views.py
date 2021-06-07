@@ -3,7 +3,7 @@ from rest_framework import generics
 from rest_framework.settings import api_settings
 
 from .models import CalendarEvent, CalendarEventAttendee
-from .permissions import EventAttendeePermission, EventPermission, UserCalendarPermission
+from .permissions import EventAttendeePermission, EventPermission
 from .serializers import CalendarEventAttendeeSerializer, CalendarEventSerializer, UserCalendarSerializer
 
 
@@ -11,7 +11,7 @@ class CalendarEventsView(generics.ListCreateAPIView):
     serializer_class = CalendarEventSerializer
 
     def get_queryset(self):
-        return CalendarEvent.objects.get_user_events(self.request.user)
+        return CalendarEvent.objects.get_user_events(self.request.user).order_by('-time_start')
 
 
 class CalendarEventView(generics.RetrieveUpdateDestroyAPIView):
